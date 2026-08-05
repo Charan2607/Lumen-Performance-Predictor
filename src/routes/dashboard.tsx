@@ -13,10 +13,33 @@ function Dashboard() {
   const [students, setStudents] = useState<Student[]>([]);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!isLoggedIn()) { nav({ to: "/login" }); return; }
-    setStudents(loadStudents());
+    if (!isLoggedIn()) {
+      nav({ to: "/login" });
+      return;
+    }
+
+    let isMounted = true;
+    (async () => {
+      try {
+        const data = await loadStudents();
+        if (isMounted) {
+          setStudents(data);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    })();
+
+    return () => {
+      isMounted = false;
+    };
   }, [nav]);
 
   const filtered = students.filter(s => s.name.toLowerCase().includes(query.toLowerCase()) || s.email.toLowerCase().includes(query.toLowerCase()));
@@ -25,16 +48,26 @@ function Dashboard() {
   const atRisk = predictions.filter(x => x.p.risk === "High").length;
   const top = predictions.filter(x => x.p.risk === "Low").length;
 
-  function handleAdd(s: Omit<Student, "id" | "createdAt">) {
-    addStudent(s);
-    setStudents(loadStudents());
-    setOpen(false);
-    toast.success(`${s.name} added.`);
+  async function handleAdd(s: Omit<Student, "id" | "createdAt">) {
+    try {
+      const student = await addStudent(s);
+      setStudents(prev => [student, ...prev]);
+      setOpen(false);
+      toast.success(`${s.name} added.`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Unable to add student.");
+    }
   }
-  function handleDelete(id: string, name: string) {
-    deleteStudent(id);
-    setStudents(loadStudents());
-    toast.success(`${name} removed.`);
+  async function handleDelete(id: string, name: string) {
+    try {
+      await deleteStudent(id);
+      setStudents(prev => prev.filter(student => student.id !== id));
+      toast.success(`${name} removed.`);
+    } catch (error) {
+      console.error(error);
+      toast.error("Unable to remove student.");
+    }
   }
 
   return (

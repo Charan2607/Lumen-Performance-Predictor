@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: lumen-performance-predictor
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: MONGODB_URI
+        value: ""
+      - key: MONGODB_DB
+        value: "lumen"
