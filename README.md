@@ -198,14 +198,25 @@ Run container (example):
 docker run -e MONGODB_URI="your-mongo-uri" -p 3000:3000 lumen-performance-predictor:latest
 ```
 
-2) Render (one-click friendly)
+2) Vercel
+
+- Add this repository to Vercel and deploy from the `main` branch.
+- Vercel should automatically detect the project, but you can enforce npm with `vercel.json`.
+- Set the Environment Variables `MONGODB_URI` and `MONGODB_DB` in the Vercel project dashboard.
+- Recommended build settings:
+  - Install Command: `npm install`
+  - Build Command: `npm run build`
+  - Output Directory: leave blank or `.output/public` if asked.
+- Make sure Vercel uses Node 20+ by setting the `package.json` `engines.node` field and including `.nvmrc`.
+
+3) Render (one-click friendly)
 
 - Create a new Web Service on Render.
 - Set the repo, build command: `npm install && npm run build` and start command: `npm run start`.
 - Add environment variables `MONGODB_URI` and `MONGODB_DB` in the Render dashboard.
 - You can also include the provided `render.yaml` manifest for infra-as-code deployments.
 
-3) Railway / Fly / Heroku
+4) Railway / Fly / Heroku
 
 - Similar approach: configure the repo, set `MONGODB_URI`, use build command `npm install && npm run build`, and start command `npm run start` or `npm run preview`.
 
