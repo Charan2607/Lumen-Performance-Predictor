@@ -1,5 +1,6 @@
 # Dockerfile for Lumen Performance Predictor
-FROM node:18-alpine AS build
+# Use Node 20 for the build stage to avoid Rolldown/unenv import issues
+FROM node:20-bullseye-slim AS build
 WORKDIR /app
 
 # Install deps
